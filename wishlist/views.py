@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from django.http import HttpResponse
+from django.core import serializers
 
 # Create your views here.
 @login_required(login_url='/wishlist/login/')
@@ -19,7 +20,7 @@ def show_wishlist(request):
     'list_barang': data_barang_wishlist,
     'nama': 'Naiya Dwita Ayunir',
     'last_login': request.COOKIES['last_login'],
-}
+    }
     return render(request, "wishlist.html",context)
 
 def register(request):
@@ -55,3 +56,18 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('wishlist:login'))
     response.delete_cookie('last_login')
     return response
+
+
+def show_xml(request):
+    data = BarangWishlist.objects.all()
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json(request):
+    data = BarangWishlist.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_json_by_id(request,id):
+    data = BarangWishlist.objects.filter(pk=id)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+
