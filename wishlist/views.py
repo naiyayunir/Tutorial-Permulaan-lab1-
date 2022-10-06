@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.core import serializers
 
 # Create your views here.
@@ -22,6 +22,34 @@ def show_wishlist(request):
     'last_login': request.COOKIES['last_login'],
     }
     return render(request, "wishlist.html",context)
+
+def show_wishlist_ajax(request):
+    data_barang_wishlist = BarangWishlist.objects.all()
+    context = {
+        'list_barang': data_barang_wishlist,
+        'nama':'Naiya Dwita Ayunir',
+        'last_login': request.COOKIES['last_login'],
+    }
+    return render(request, "wishlist_ajax.html", context)
+
+def add_wishlist(request: HttpRequest):
+    if request.method == "POST":
+        nama_barang = request.POST.get("nama_barang")
+        harga_barang = request.POST.get("harga_barang")
+        deskripsi = request.POST.get("deskripsi")
+
+        new_barang = BarangWishlist(
+            nama_barang=nama_barang,
+            harga_barang=harga_barang,
+            deskripsi=deskripsi,
+        )
+        new_barang.save()
+        return HttpResponse(
+            serializers.serialize("json", [new_barang]),
+            content_type="application/json",
+        )
+
+    return HttpResponse("Invalid method", status_code=405)
 
 def register(request):
         form = UserCreationForm()
